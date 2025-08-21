@@ -1,1 +1,53 @@
 @import "tailwindcss";
+
+@theme {
+    --animate-rotate: rotate 1s forwards;
+
+    @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+            background-color: var(--color-blue-950);
+            color: var(--color-white);
+
+        }
+
+        80% {
+            background-color: var(--color-white);
+            color: var(--color-blue-950);
+        }
+
+        100% {
+            transform: rotate(180deg);
+            background-color: var(--color-white);
+            color: var(--color-blue-950);
+        }
+    }
+
+    --animate-rotate-backwards: rotate-backwards 1s; 
+
+    @keyframes rotate-backwards {
+        0% {
+                        transform: rotate(180deg);
+            background-color: var(--color-white);
+            color: var(--color-blue-950);
+
+
+        }
+
+        80% {
+            background-color: var(--color-blue-950);
+            color: var(--color-white);
+        }
+
+        100% {
+            transform: rotate(0deg);
+            background-color: var(--color-blue-950);
+            color: var(--color-white);
+        }
+    }
+}
+
+/* .animate-rotateOnce {
+    animation: var(--animate-rotate);
+    animation-iteration-count: 1;
+} */
