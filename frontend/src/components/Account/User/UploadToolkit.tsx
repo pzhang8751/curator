@@ -4,27 +4,37 @@ import { FaPlus, FaRegImage } from "react-icons/fa6";
 
 
 const UploadToolkit = () => {
-    const [open, setOpen] = useState(false);
-    const [animate, setAnimate] = useState(false); 
-    const [animateBackwards, setAnimateBackwards] = useState(false); 
+    const [open, setOpen] = useState("idle");
+    const [animate, setAnimate] = useState("idle"); 
 
     return (
         <>
             <button
                 type="button"
                 className={"absolute bottom-10 p-6 rounded-4xl bg-blue-950 text-white hover:cursor-pointer border-2 border-blue-950"
-                    + (animate ? " animate-rotate": "") + (animateBackwards ? " animate-rotate-backwards": "")}
-                onMouseEnter={() => {setAnimate(true); setAnimateBackwards(false)}}
-                onMouseLeave={() => {setAnimateBackwards(true); setAnimate(false)}}
+                    + (animate === "forward" ? " animate-rotate" : animate === "backward" ? " animate-rotate-backwards" : "")}
+                onMouseEnter={() => {setAnimate("forward")}} 
+                onMouseLeave={() => {setAnimate(
+                    open === "close" ? "backward" : "forward"
+                )}}
+                onClick={() => {setOpen(
+                    open === "idle" ? "open" : open === "open" ? "close" : "open"
+                )}}
             >
                 <FaPlus />
             </button>
-            <UploadPhotoButton></UploadPhotoButton>
+            <UploadPhotoButton isOpen={open}></UploadPhotoButton>
+            {/* {open && (
+                <>
+                    <UploadPhotoButton isOpen={open}></UploadPhotoButton>
+                </>
+            )} */}
+            
         </>
     )
 }
 
-const UploadPhotoButton = () => {
+const UploadPhotoButton = ({isOpen} : {isOpen: string}) => {
     const [open, setOpen] = useState(false);
 
     const fileSelector = useRef<HTMLInputElement | null>(null);
@@ -62,7 +72,14 @@ const UploadPhotoButton = () => {
 
     return (
         <>
-            <button type="button" onClick={handleUpload} className="absolute bottom-30 p-4 rounded-3xl bg-amber-500 hover:cursor-pointer"><FaRegImage /></button>
+            <button type="button" 
+                onClick={handleUpload} 
+                className={"absolute bottom-30 p-4 rounded-3xl bg-amber-500 hover:cursor-pointer" 
+                    + (isOpen === "open" ? " animate-popout": isOpen === "close" ? " animate-popout-backwards": "")
+                }
+            >
+                <FaRegImage />
+            </button>
             <input type="file" className="hidden" ref={fileSelector} onChange={handlePost} accept=".jpg,.png,.mp4"></input>
             <UploadPhotoScreen open={open} close={() => setOpen(false)} imagePreview={uploadSrc}></UploadPhotoScreen>
         </>
