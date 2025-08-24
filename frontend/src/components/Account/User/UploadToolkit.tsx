@@ -3,6 +3,7 @@ import { IoMdClose } from "react-icons/io";
 import { FaPlus, FaRegImage } from "react-icons/fa6";
 import { LuRectangleVertical, LuSquare } from "react-icons/lu";
 import { TbRectangleVertical } from "react-icons/tb";
+import { submitPhoto } from "./UploadLogic";
 
 const UploadToolkit = () => {
     const [open, setOpen] = useState("idle");
@@ -163,8 +164,8 @@ const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close
 
                 }
                 {/** caption, time / date */}
-                <form className="">
-                    <textarea ref={captionRef} className="w-full bg-white outline-0 resize-none" rows={5} maxLength={250} onChange={() => setCharacters(captionRef.current?.value.length ?? 0)}></textarea>
+                <form action={submitPhoto} className="">
+                    <textarea ref={captionRef} className="w-full bg-white outline-0 resize-none" rows={5} maxLength={250} onChange={() => setCharacters(captionRef.current?.value.length ?? 0)} name="caption" placeholder="Add caption here..."></textarea>
                     <p>{characters}/250</p>
                     <button type="submit" className="px-3 py-1 rounded-2xl bg-blue-950 text-white hover:cursor-pointer">Post</button>
                 </form>
