@@ -52,7 +52,7 @@ const UploadPhotoButton = ({ isOpen }: { isOpen: string }) => {
         }
     }
 
-    const handlePost = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         console.log(file);
 
@@ -86,13 +86,27 @@ const UploadPhotoButton = ({ isOpen }: { isOpen: string }) => {
             >
                 <FaRegImage />
             </button>
-            <input type="file" className="hidden" ref={fileSelector} onChange={handlePost} accept=".jpg,.png,.mp4"></input>
+            <input type="file" className="hidden" ref={fileSelector} onChange={handleFile} accept=".jpg,.png,.mp4"></input>
             <UploadPhotoScreen open={open} close={() => setOpen(false)} imagePreview={uploadSrc}></UploadPhotoScreen>
         </>
     )
 }
 
 const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close: () => void, imagePreview: string | null }) => {
+    const canvasRef = useRef<HTMLCanvasElement | null>(null); 
+
+    const image = new Image(); 
+    if (typeof imagePreview === "string") {
+        image.src = imagePreview; 
+        image.onload = () => {
+            if (canvasRef.current) {
+                const canvasContext = canvasRef.current.getContext('2d');
+                canvasContext?.drawImage(image, 0, 0, 384, 384); 
+            }
+        }
+    }
+
+
     const [aspectRatio, setAspectRatio] = useState("3x4")
 
     const captionRef = useRef<HTMLTextAreaElement | null>(null);
@@ -110,6 +124,33 @@ const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close
 
 
     }, [aspectRatio])
+
+    const handlePost = async (formData: FormData) => {
+        'use server'
+
+        function canvasToBlob(): Promise<Blob | null> {
+            return new Promise((resolve) => {
+                if (canvasRef.current) {
+                    canvasRef.current.toBlob((blob) => {
+                        resolve(blob)
+                    }, "image/png")
+                } else {
+                    resolve(null)
+                } 
+            })
+        }
+
+        if (canvasRef.current) {
+            const caption = formData.get("caption") as string | ""; 
+            const blob = await canvasToBlob(); 
+            
+            if (blob) {
+                await submitPhoto(blob, caption); 
+            }
+
+            
+        }
+    }
 
     return (
         <div className={(open ? "" : "hidden")}>
@@ -143,20 +184,7 @@ const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close
                                 >1:1<LuSquare className="inline" size={40} /></button>
                             </div>
                             <div className="w-96 h-96 bg-pink-200 flex justify-center items-center">
-                                <img
-                                    src={imagePreview}
-                                    // object-cover : crops image to fit aspect ratio 
-                                    // need to recalculate, the height and width should stay at the boundary not the same 
-                                    className={"object-cover"
-                                        + (aspectRatio === "9x16" ? " w-54 h-96" :
-                                            aspectRatio === "16x9" ? " w-96 h-54" :
-                                                aspectRatio === "4x3" ? " w-96 h-72" :
-                                                    aspectRatio === "3x4" ? " w-72 h-96" :
-                                                        " w-96 h-96"
-                                        )
-                                    }
-                                >
-                                </img>
+                                <canvas ref={canvasRef} width={384} height={384} className="w-96 h-96"></canvas>
                             </div>
 
                         </div>
@@ -164,7 +192,7 @@ const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close
 
                 }
                 {/** caption, time / date */}
-                <form action={submitPhoto} className="">
+                <form action={handlePost} className="">
                     <textarea ref={captionRef} className="w-full bg-white outline-0 resize-none" rows={5} maxLength={250} onChange={() => setCharacters(captionRef.current?.value.length ?? 0)} name="caption" placeholder="Add caption here..."></textarea>
                     <p>{characters}/250</p>
                     <button type="submit" className="px-3 py-1 rounded-2xl bg-blue-950 text-white hover:cursor-pointer">Post</button>
