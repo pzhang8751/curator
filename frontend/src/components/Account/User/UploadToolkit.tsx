@@ -93,15 +93,15 @@ const UploadPhotoButton = ({ isOpen }: { isOpen: string }) => {
 }
 
 const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close: () => void, imagePreview: string | null }) => {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null); 
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-    const image = new Image(); 
+    const image = new Image();
     if (typeof imagePreview === "string") {
-        image.src = imagePreview; 
+        image.src = imagePreview;
         image.onload = () => {
             if (canvasRef.current) {
                 const canvasContext = canvasRef.current.getContext('2d');
-                canvasContext?.drawImage(image, 0, 0, 384, 384); 
+                canvasContext?.drawImage(image, 0, 0, 384, 384);
             }
         }
     }
@@ -125,30 +125,35 @@ const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close
 
     }, [aspectRatio])
 
+    function canvasToBlob(): Promise<Blob | null> {
+        return new Promise((resolve) => {
+            if (canvasRef.current) {
+                canvasRef.current.toBlob((blob) => {
+                    resolve(blob)
+                }, "image/png")
+            } else {
+                resolve(null)
+            }
+        })
+    }
+
     const handlePost = async (formData: FormData) => {
         'use server'
+        
+        const caption = formData.get("caption") as string | "";
 
-        function canvasToBlob(): Promise<Blob | null> {
-            return new Promise((resolve) => {
-                if (canvasRef.current) {
-                    canvasRef.current.toBlob((blob) => {
-                        resolve(blob)
-                    }, "image/png")
-                } else {
-                    resolve(null)
-                } 
-            })
-        }
+        try {
+            const blob = await canvasToBlob();
 
-        if (canvasRef.current) {
-            const caption = formData.get("caption") as string | ""; 
-            const blob = await canvasToBlob(); 
-            
             if (blob) {
                 await submitPhoto(blob, caption); 
+            } else {
+                throw new Error("Picture failed"); 
             }
-
-            
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                alert(err.message)
+            }
         }
     }
 
@@ -168,7 +173,7 @@ const UploadPhotoScreen = ({ open, close, imagePreview }: { open: boolean, close
                                         )
                                     }}
                                 >
-                                    {longSize}<LuRectangleVertical className={"inline " + (aspectRatio === "9x16" ? "rotate-90": "")} size={40} />
+                                    {longSize}<LuRectangleVertical className={"inline " + (aspectRatio === "9x16" ? "rotate-90" : "")} size={40} />
                                 </button>
                                 <button className="hover:cursor-pointer"
                                     onClick={() => {
