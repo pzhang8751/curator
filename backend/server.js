@@ -1,12 +1,41 @@
-const express = require("express"); 
+const express = require("express");
+const { uploadPhoto } = require("./s3Logic");
+const { uploadCaption, createDatabase } = require("./sqlLogic");
 
-const app = express(); 
-const router = express.Router(); /* specific for url */ 
-const port = 3000; 
+const app = express();
+const router = express.Router(); /* specific for url */
+const port = 3000;
 
-app.get("/", (req, res) => {
-    res.send("Hello World!"); 
-});
+// app.get("/", (req, res) => {
+//     res.send("Hello World!"); 
+// });
+
+// uploads png image to s3 bucket
+app.post("/upload-photo", express.raw({ type: "image/png", limit: "10mb" }), async (req, res) => {
+    try {
+        const id = await uploadPhoto(req.body);
+
+        res.status(200).send({ success: true, id: id });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ error: "Photo not uploaded" })
+    }
+})
+
+// uploads caption / post metadata to AWS MySQL 
+app.post("/upload-caption", express.json(), async (req, res) => {
+    try {
+        const data = req.body
+        console.log(data.caption); 
+        await createDatabase(); 
+
+        res.status(200).send({ success: true });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ error: "Caption not uploaded" })
+    }
+})
+
 
 app.listen(port, () => {
     console.log("Server running on port 3000!");
