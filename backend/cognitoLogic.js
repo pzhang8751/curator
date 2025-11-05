@@ -1,6 +1,6 @@
 
 const express = require("express");
-const session = require("express-session");
+
 const { Issuer, generators } = require('openid-client');
 
 const router = express.Router(); 
@@ -55,6 +55,14 @@ router.get('/callback', async (req, res) => {
     } catch (err) {
         console.error('Callback error: ', err);
         res.redirect('http://localhost:5173/');
+    }
+})
+
+router.get('/get-authenticated', (req, res) => {
+    if (req.session.userInfo) {
+        res.json({ isAuthenticated: true, user: req.session.userInfo});
+    } else {
+        res.json({ isAuthenticated: false }); 
     }
 })
 
