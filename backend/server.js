@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const cors = require("cors")
 const { router: cognitoRoutes, initializeClient } = require("./cognitoLogic");
 const { uploadPhoto } = require("./s3Logic");
 const { uploadCaption, createDatabase } = require("./sqlLogic");
@@ -9,6 +10,12 @@ const port = 3000;
 
 // initalizing cognito client
 initializeClient().catch(console.error);
+
+// cors policy
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 
 // configuring session middleware
 app.use(session({
