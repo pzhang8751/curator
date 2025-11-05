@@ -9,9 +9,9 @@ const router = express.Router();
 // configuring openid-client
 let client; 
 async function initializeClient() {
-    const issuer = await Issuer.discover('https://cognito-idp.us-east-2.amazonaws.com/us-east-2_a63MiRqET');
+    const issuer = await Issuer.discover('https://cognito-idp.us-east-2.amazonaws.com/us-east-2_KBTpzyH3D');
     client = new issuer.Client({
-        client_id: 'hp6206gv0djolp2qn5gbsnt1q',
+        client_id: '13ofb4hfvvukatfpg4847js6qp',
         client_secret: process.env.AWS_COGNITO_CLIENT,
         redirect_uris: ['http://localhost:3000/callback'],
         response_types: ['code']
