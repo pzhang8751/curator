@@ -22,7 +22,7 @@ export const AuthProvider = ({children} : {children: ReactNode}) => {
         }
     }
 
-    useEffect(() => {
+    useEffect(() => { // this is running every time any page gets refreshed, is there any way to change so it only gets refreshed when needed 
         fetchUser(); 
     }, [])
 
