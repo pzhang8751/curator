@@ -2,7 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const cors = require("cors")
 const { router: cognitoRoutes, initializeClient } = require("./cognitoLogic");
-const { uploadPhoto } = require("./s3Logic");
+const { router: s3Routes } = require("./s3routes");
 const { uploadCaption, createDatabase } = require("./sqlLogic");
 
 const app = express();
@@ -26,18 +26,8 @@ app.use(session({
 
 // AWS cognito route logic 
 app.use("/", cognitoRoutes);
-
-// uploads png image to s3 bucket
-app.post("/upload-photo", express.raw({ type: "image/png", limit: "10mb" }), async (req, res) => {
-    try {
-        const id = await uploadPhoto(req.body);
-
-        res.status(200).send({ success: true, id: id });
-    } catch (error) {
-        console.log(error)
-        res.status(500).send({ error: "Photo not uploaded" })
-    }
-})
+// AWS S3 route logic 
+app.use("/upload/", s3Routes);
 
 // uploads caption / post metadata to AWS MySQL 
 app.post("/upload-caption", express.json(), async (req, res) => {
@@ -52,7 +42,6 @@ app.post("/upload-caption", express.json(), async (req, res) => {
         res.status(500).send({ error: "Caption not uploaded" })
     }
 })
-
 
 app.listen(port, () => {
     console.log("Server running on port 3000!");
