@@ -11,6 +11,7 @@ import EditProfilePage from './components/Account/EditProfilePage';
 import AccountInformationPage from './components/Account/AccountInformationPage';
 import { useState, useEffect } from 'react';
 import { useAuth } from './AuthProvider';
+import NotFoundPage from './components/404/NotFoundPage';
 
 function LayoutWithNav() {
   return (
@@ -42,7 +43,9 @@ function App() {
             <Route path="account" element={<AccountLayout />}>
               <Route path="edit-profile" element={<EditProfilePage />}></Route>
               <Route path="account-information" element={<AccountInformationPage />}></Route>
+              <Route path="*" element={<NotFoundPage />}></Route>
             </Route>
+            <Route path="*" element={<NotFoundPage />}></Route>
           </Route>
         </Routes>
       </BrowserRouter>
