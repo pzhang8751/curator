@@ -3,9 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-
-
 export async function createDatabase() {
+    // connecting to AWS RDS via mysql
     const connection = await mysql.createConnection({
         host: process.env.AWS_SQL_HOST,
         user: process.env.AWS_SQL_USER,
@@ -13,23 +12,15 @@ export async function createDatabase() {
         database: "curratory-sql-test",
         port: 3306
     })
-    connection.connect(err => {
-        if (err) {
-            console.log("Connection failed");
-            return;
-        }
 
-        console.log("Connection succeded");
+    // create table query
+    // does not support multiposts
+    const [results, fields] = await connection.query(
+        'CREATE TABLE IF NOT EXISTS posts (post_id BIGINT AUTO_INCREMENT, account_id VARCHAR(36), order_id BIGINT, type ENUM(\'image\', \'video\', \'audio\'), bucket_link VARCHAR)'
+    );
 
-        connection.query("SELECT NOW() AS now", (err, results) => {
-            if (err) {
-                console.error("❌ Query failed:", err.stack);
-            } else {
-                console.log("✅ Query result:", results);
-            }
-            connection.end();
-        });
-    })
+    console.log(results);
+    console.log(fields);
 }
 
 export async function uploadCaption(caption) {

@@ -1,15 +1,19 @@
 const express = require("express");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const cors = require("cors")
 const { router: cognitoRoutes, initializeClient } = require("./cognitoLogic");
-const { router: s3Routes } = require("./s3routes");
-const { uploadCaption, createDatabase } = require("./sqlLogic");
+const s3Routes = require("./s3routes");
+const sqlRoutes = require("./sqlroutes");
 
 const app = express();
 const port = 3000;
 
 // initalizing cognito client
 initializeClient().catch(console.error);
+
+// for login cookie
+app.use(cookieParser());
 
 // cors policy
 app.use(cors({
@@ -26,22 +30,10 @@ app.use(session({
 
 // AWS cognito route logic 
 app.use("/", cognitoRoutes);
-// AWS S3 route logic 
-app.use("/upload/", s3Routes);
-
-// uploads caption / post metadata to AWS MySQL 
-app.post("/upload-caption", express.json(), async (req, res) => {
-    try {
-        const data = req.body
-        console.log(data.caption); 
-        await createDatabase(); 
-
-        res.status(200).send({ success: true });
-    } catch (error) {
-        console.log(error)
-        res.status(500).send({ error: "Caption not uploaded" })
-    }
-})
+// AWS S3 route logic - need to update when frontend calls as well
+app.use("/s3", s3Routes);
+// AWS RDS (SQL) route logic
+app.use("/sql", sqlRoutes);
 
 app.listen(port, () => {
     console.log("Server running on port 3000!");
