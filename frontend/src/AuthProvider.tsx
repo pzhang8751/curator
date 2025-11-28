@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, type ReactNode} from "react";
 
 const AuthContext = createContext(null); 
@@ -12,29 +11,32 @@ export const AuthProvider = ({children} : {children: ReactNode}) => {
                 credentials: "include",
             }); 
             const data = await res.json();
+
             if (data.isAuthenticated) {
                 setUser(data.user); 
-            } else {
-                setUser(null); 
-            }
+            } 
+            // else {
+            //     setUser(null); 
+            // }
         } catch (error) {
             console.error("Failed to fetch user: ", error)
         }
     }
 
     useEffect(() => { // this is running every time any page gets refreshed, is there any way to change so it only gets refreshed when needed 
-        fetchUser(); 
+        fetchUser();
     }, [])
 
     return (
-        <AuthContext value={user}>
+        <AuthContext.Provider value={user}>
             {children}
-        </AuthContext>
+        </AuthContext.Provider>
     )
 }
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
+    // console.log(context); 
     // if (!context) throw new Error("useAuth must be used within an AuthProvider");
     return context; 
 }

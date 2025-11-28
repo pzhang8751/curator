@@ -4,16 +4,17 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import HomePage from "./components/Home/HomePage";
 import NavBar from './components/NavBar/navbar';
 import Footer from './components/Footer/Footer';
-import UserPage from './components/Account/User/UserPage';
+import UserPage from './components/User/UserPage';
 import { AuthProvider } from './AuthProvider';
 import AccountNavbar from './components/Account/AccountNavbar';
 import EditProfilePage from './components/Account/EditProfilePage';
 import AccountInformationPage from './components/Account/AccountInformationPage';
+import { useState, useEffect } from 'react';
+import { useAuth } from './AuthProvider';
 
 function LayoutWithNav() {
   return (
     <>
-      <NavBar></NavBar>
       <Outlet />
       {/* <Footer></Footer> */}
     </>
@@ -30,10 +31,10 @@ function AccountLayout() {
 }
 
 function App() {
-
   return (
     <AuthProvider>
       <BrowserRouter>
+        <NavBar></NavBar>
         <Routes>
           <Route element={<LayoutWithNav />}>
             <Route path="/" element={<HomePage />}></Route>

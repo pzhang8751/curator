@@ -1,9 +1,9 @@
 
 const LoginButton = () => {
     return (
-        <>
-            <a href="/login">Login</a>
-        </>
+        <a href="/api/login" className="justify-self-center place-self-center">
+            Login
+        </a>
     )
 }
 
